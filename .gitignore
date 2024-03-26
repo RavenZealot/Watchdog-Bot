@@ -1,0 +1,4 @@
+/.env
+/watchdog-bot.log
+/watchdog-bot-backup.log
+/server_list.ini
