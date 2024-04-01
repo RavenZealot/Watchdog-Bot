@@ -1,4 +1,4 @@
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 
 const FS = require('fs');
 const INI = require('ini');
@@ -23,9 +23,23 @@ module.exports = {
             const ip = await publicIp.publicIpv4();
 
             // ps コマンドを実行して .x86_64 プロセスを取得し，ユーザ名を抽出
-            exec('ps aux | grep .x86_64 | grep -v grep | awk \'{print $1}\'', (error, stdout, _stderr) => {
-                if (error) {
-                    logger.errorToFile(`ps コマンドの実行でエラーが発生`, error);
+            const ps = spawn('ps', ['aux']);
+            const grep1 = spawn('grep', ['.x86_64']);
+            const grep2 = spawn('grep', ['-v', 'grep']);
+            const awk = spawn('awk', ['{print $1}']);
+
+            ps.stdout.pipe(grep1.stdin);
+            grep1.stdout.pipe(grep2.stdin);
+            grep2.stdout.pipe(awk.stdin);
+
+            let stdout = '';
+            awk.stdout.on('data', (data) => {
+                stdout += data;
+            });
+
+            awk.on('close', (code) => {
+                if (code !== 0) {
+                    logger.errorToFile(`ps コマンドの実行でエラーが発生`, new Error(`awk exited with code ${code}`));
                     return;
                 }
 
