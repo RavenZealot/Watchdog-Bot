@@ -9,14 +9,20 @@ Assumes Debian 12 in operation
 
   ```shell-session
   $ npm init
-  $ npm install discord.js dotenv ini
+  $ npm install discord.js dotenv ini public-ip
   ```
 
 - `.env` (Root directory)
   - BOT_TOKEN : Discord Application [Token](https://discord.com/developers/applications)
 - `server.ini` (Root directory)
   > [Servers]  
-  > exec user='> Game Name \*\*\`IP:Port\`\*\*'
+  > {exec user}='> {Game Name} \*\*\`GlobalIP:{Port}\`\*\*'
+  - `{exec user}` : User to execute the command, e.g. `terraria`
+  - `{Game Name}` : Game name, e.g. `Terraria`
+  - `{Port}` : Game server port, e.g. `7777`
+  - Example
+    > [Servers]  
+    > terraria='> Terraria \*\*\`GlobalIP:7777\`\*\*'
 - Discord Application Generated URL
 
 ## Run
