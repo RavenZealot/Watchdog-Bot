@@ -55,7 +55,7 @@ module.exports = {
                 logger.logToFile(`一覧 : ${message}`);
             });
         } catch (error) {
-            await interaction.editReply(`${messenger.errorMessages(`ゲームサーバの取得でエラーが発生しました`)}`);
+            await interaction.editReply(`${messenger.errorMessages(`ゲームサーバの取得でエラーが発生しました`, error.message)}`);
             logger.errorToFile(`ゲームサーバの取得でエラーが発生`, error);
         }
     }

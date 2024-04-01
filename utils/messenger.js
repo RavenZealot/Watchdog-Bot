@@ -5,7 +5,7 @@ module.exports = {
     },
 
     // エラーメッセージを生成
-    errorMessages: function (error) {
-        return `:warning: **エラー** : ${error} :warning:`;
+    errorMessages: function (answer, error) {
+        return `:warning: **エラー** : ${answer} :warning:\n\`\`\`${error}\`\`\``;
     }
 };

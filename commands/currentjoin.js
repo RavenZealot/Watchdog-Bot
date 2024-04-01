@@ -114,7 +114,7 @@ module.exports = {
             await interaction.editReply(`${messenger.answerMessages(message)}\r\n`);
             logger.logToFile(`一覧 : ${message}`);
         } catch (error) {
-            await interaction.editReply(`${messenger.errorMessages(`ユーザの取得でエラーが発生しました`)}`);
+            await interaction.editReply(`${messenger.errorMessages(`ユーザの取得でエラーが発生しました`, error.message)}`);
             logger.errorToFile(`ユーザの取得でエラーが発生`, error);
         }
     }

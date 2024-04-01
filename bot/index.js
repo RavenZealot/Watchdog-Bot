@@ -51,7 +51,7 @@ DISCORD.on('interactionCreate', async (interaction) => {
         await command.execute(interaction);
     } catch (error) {
         await interaction.reply({
-            content: messenger.errorMessages(`コマンドを実行中にエラーが発生しました`),
+            content: messenger.errorMessages(`コマンドを実行中にエラーが発生しました`, error.message),
             ephemeral: true
         });
         logger.errorToFile(`コマンドを実行中にエラーが発生`, error);

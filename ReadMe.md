@@ -1,16 +1,9 @@
 # Watchdog-Bot
 
-Game server monitoring bot for Discord
+Game server monitoring bot for Discord  
 Assumes Debian 12 in operation
 
 ## Required (Only once)
-
-- <s>`npm` initialize</s> (Already applied)
-
-  ```shell-session
-  $ npm init
-  $ npm install discord.js dotenv ini public-ip
-  ```
 
 - `.env` (Root directory)
   - BOT_TOKEN : Discord Application [Token](https://discord.com/developers/applications)
