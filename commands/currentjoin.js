@@ -75,7 +75,7 @@ module.exports = {
             },
             {
                 name: '公開',
-                description: '他のユーザに公開するかどうかを選択してください．',
+                description: '他のユーザに公開するかを選択してください．',
                 type: 5,
                 required: false
             }
@@ -87,7 +87,7 @@ module.exports = {
             // 対象を取得
             const target = interaction.options.getString('対象');
             // 公開設定を取得
-            const isPublic = interaction.options.getBoolean('公開');
+            const isPublic = interaction.options.getBoolean('公開') ?? false;
 
             // interaction の返信を遅延させる
             await interaction.deferReply({ ephemeral: !isPublic });
