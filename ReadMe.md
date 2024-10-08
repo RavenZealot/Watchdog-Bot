@@ -7,6 +7,7 @@ Assumes Debian 12 in operation
 
 - `.env` (Root directory)
   - BOT_TOKEN : Discord Application [Token](https://discord.com/developers/applications)
+  - SERVER_EMOJI : Emoji for Server (e.g. `<:Debian:1234567890123456789>`)
 - `server.ini` (Root directory)
   > [Servers]  
   > {exec user}='> {Game Name} \*\*\`GlobalIP:{Port}\`\*\*'

@@ -1,7 +1,7 @@
 module.exports = {
     // 回答メッセージを生成
-    answerMessages: function (answer) {
-        return `:loudspeaker: : ${answer.trim()}`;
+    answerMessages: function (emoji, answer) {
+        return `${emoji} : ${answer.trim()}`;
     },
 
     // エラーメッセージを生成

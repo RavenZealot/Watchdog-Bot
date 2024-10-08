@@ -83,6 +83,7 @@ module.exports = {
     },
 
     async execute(interaction) {
+        const debianEmoji = process.env.SERVER_EMOJI;
         try {
             // 対象を取得
             const target = interaction.options.getString('対象');
@@ -111,7 +112,7 @@ module.exports = {
                 message = `現在 ${target} に接続しているユーザは以下の通りです\n${activeUsers.join(', ')}`;
             }
 
-            await interaction.editReply(`${messenger.answerMessages(message)}\r\n`);
+            await interaction.editReply(`${messenger.answerMessages(debianEmoji, message)}\r\n`);
             logger.logToFile(`一覧 : ${message}`);
         } catch (error) {
             await interaction.editReply(`${messenger.errorMessages(`ユーザの取得でエラーが発生しました`, error.message)}`);

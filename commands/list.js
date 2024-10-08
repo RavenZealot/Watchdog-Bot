@@ -14,6 +14,7 @@ module.exports = {
     },
 
     async execute(interaction) {
+        const debianEmoji = process.env.SERVER_EMOJI;
         try {
             // interaction の返信を遅延させる
             await interaction.deferReply({ ephemeral: true });
@@ -51,7 +52,7 @@ module.exports = {
 
                     message = `現在稼働しているゲームサーバは以下の通りです\n${serverList.join('\n')}`;
                 }
-                interaction.editReply(`${messenger.answerMessages(message)}\r\n`);
+                interaction.editReply(`${messenger.answerMessages(debianEmoji, message)}\r\n`);
                 logger.logToFile(`一覧 : ${message}`);
             });
         } catch (error) {
