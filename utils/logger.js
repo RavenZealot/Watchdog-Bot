@@ -31,6 +31,7 @@ module.exports = {
         const logFilePath = PATH.resolve(__dirname, `../watchdog-bot.log`);
 
         const userInfo = [
+            `\n`,
             `---------- ユーザ情報 ----------`,
             `コマンド : ${interaction.commandName}`,
             `ユーザ名 : ${interaction.user.username}`,
