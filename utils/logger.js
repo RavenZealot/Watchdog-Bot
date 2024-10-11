@@ -6,9 +6,10 @@ module.exports = {
     logToFile: function (message) {
         const now = new Date();
         const timestamp = now.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
-        const logFilePath = PATH.resolve(__dirname, `../watchdog-bot.log`);
+        const logFilePath = getLogFilePath(`watchdog-bot.log`);
 
         const logMessage = `${timestamp} - ${message}`;
+
         FS.appendFileSync(logFilePath, logMessage + '\n');
         console.log(logMessage);
     },
@@ -17,18 +18,19 @@ module.exports = {
     errorToFile: function (message, error) {
         const now = new Date();
         const timestamp = now.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
-        const logFilePath = PATH.resolve(__dirname, `../watchdog-bot.log`);
+        const logFilePath = getLogFilePath(`watchdog-bot.log`);
 
         // ログにはフルスタックを，コンソールにはエラーメッセージのみを出力
         const logMessage = `${timestamp} - ${message} : ${error.stack}`;
         const errorMessage = `${timestamp} - ${message} : ${error.message}`;
+
         FS.appendFileSync(logFilePath, logMessage + '\n');
         console.error(errorMessage);
     },
 
     // コマンドを起動したユーザ情報をファイルにのみ書き込む
     commandToFile: function (interaction) {
-        const logFilePath = PATH.resolve(__dirname, `../watchdog-bot.log`);
+        const logFilePath = getLogFilePath(`watchdog-bot.log`);
 
         const userInfo = [
             `\n`,
@@ -44,14 +46,13 @@ module.exports = {
 
     // ログファイルのバックアップと新規作成
     logRotate: function () {
-        const logFilePath = PATH.resolve(__dirname, `../watchdog-bot.log`);
-        const backupLogFilePath = PATH.resolve(__dirname, `../watchdog-bot-backup.log`);
+        const logFilePath = getLogFilePath(`watchdog-bot.log`);
+        const backupLogFilePath = getLogFilePath(`watchdog-bot-backup.log`);
 
         // バックアップファイルが存在する場合は削除
         if (FS.existsSync(backupLogFilePath)) {
             FS.unlinkSync(backupLogFilePath);
         }
-
         // ログファイルをバックアップ
         if (FS.existsSync(logFilePath)) {
             FS.renameSync(logFilePath, backupLogFilePath);
@@ -61,3 +62,7 @@ module.exports = {
         FS.writeFileSync(logFilePath, '');
     }
 };
+
+function getLogFilePath(fileName) {
+    return PATH.resolve(__dirname, `../${fileName}`);
+}
