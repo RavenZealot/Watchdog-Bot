@@ -1,5 +1,4 @@
 const FS = require("fs").promises;
-const READLINE = require('readline');
 
 const logger = require('../utils/logger');
 const messenger = require('../utils/messenger');
@@ -76,48 +75,59 @@ module.exports = {
 
 async function getActiveUsers(logFilePath, target) {
     const fileHandle = await FS.open(logFilePath, 'r');
-    const fileStream = fileHandle.createReadStream();
+    const fileStats = await fileHandle.stat();
+    const fileSize = fileStats.size;
 
-    const rl = READLINE.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity
-    });
+    // ログファイルの末尾から 10000 バイト分読み込む
+    const bufferSize = Math.min(10000, fileSize);
+    const buffer = Buffer.alloc(bufferSize);
+    await fileHandle.read(buffer, 0, bufferSize, fileSize - bufferSize);
+    await fileHandle.close();
 
-    let users = new Set();
-    let steamIdToName = {};
-    let lastSteamId = '';
+    // バッファからログを取得
+    const recentLogs = buffer.toString('utf-8').split('\n');
 
-    for await (const line of rl) {
+    // SteamID をキーとしてユーザー名を保存
+    let users = new Map();
+
+    for await (const line of recentLogs) {
         if (target === 'Terraria') {
             const joinMatch = line.match(/(.*) has joined\./);
             const leftMatch = line.match(/(.*) has left\./);
 
             if (joinMatch) {
                 // 接続したユーザを追加
-                users.add(joinMatch[1]);
+                users.set(joinMatch[1], joinMatch[1]);
             } else if (leftMatch) {
                 // 切断したユーザを削除
-                users.delete(leftMatch[1]);
+                users.delete(leftMatch[1], leftMatch[1]);
             }
         }
         else if (target === 'Valheim') {
-            const joinMatch = line.match(/Got connection SteamID (\d+)/);
-            const leftMatch = line.match(/Closing socket (\d+)/);
-            const nameMatch = line.match(/Got character ZDOID from (\w+) : \d+:\d+/);
+            const connectMatch = line.match(/Got connection SteamID (\d+)/);
+            const disconnectMatch = line.match(/Closing socket (\d+)/);
+            const nameMatch = line.match(/Got character ZDOID from (\w+) : -?\d+:\d+/);
 
-            if (joinMatch) {
-                lastSteamId = joinMatch[1];
+            if (connectMatch) {
+                // 接続したユーザを追加
+                const steamId = connectMatch[1];
+                users.set(steamId, users.get(steamId) || null);
             }
-            if (nameMatch && lastSteamId) {
-                steamIdToName[lastSteamId] = nameMatch[1];
-                users.add(steamIdToName[lastSteamId]);
+            if (disconnectMatch) {
+                // 切断したユーザを削除
+                const steamId = disconnectMatch[1];
+                users.delete(steamId);
             }
-            if (leftMatch) {
-                users.delete(steamIdToName[leftMatch[1]] || leftMatch[1]);
+            if (nameMatch) {
+                // ユーザ名を関連付け
+                const name = nameMatch[1];
+                const steamId = Array.from(users.entries()).find(([_id, userName]) => userName === null)?.[0];
+                if (steamId) {
+                    users.set(steamId, name);
+                }
             }
         }
     }
 
-    await fileHandle.close();
-    return Array.from(users);
+    return Array.from(users.values()).filter(Boolean);
 };
