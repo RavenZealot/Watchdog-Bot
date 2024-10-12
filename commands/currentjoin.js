@@ -1,55 +1,8 @@
-const readline = require('readline');
-
-const FS = require('fs');
+const FS = require("fs").promises;
+const READLINE = require('readline');
 
 const logger = require('../utils/logger');
 const messenger = require('../utils/messenger');
-
-async function getActiveUsers(logFilePath, target) {
-    const fileStream = FS.createReadStream(logFilePath);
-
-    const rl = readline.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity
-    });
-
-    let users = new Set();
-    let steamIdToName = {};
-    let lastSteamId = '';
-
-    for await (const line of rl) {
-        if (target === 'Terraria') {
-            const joinMatch = line.match(/(.*) has joined\./);
-            const leftMatch = line.match(/(.*) has left\./);
-
-            if (joinMatch) {
-                // 接続したユーザを追加
-                users.add(joinMatch[1]);
-            } else if (leftMatch) {
-                // 切断したユーザを削除
-                users.delete(leftMatch[1]);
-            }
-        }
-        else if (target === 'Valheim') {
-            const joinMatch = line.match(/Got connection SteamID (\d+)/);
-            const leftMatch = line.match(/Closing socket (\d+)/);
-            const nameMatch = line.match(/Got character ZDOID from (\w+) : \d+:\d+/);
-
-            if (joinMatch) {
-                lastSteamId = joinMatch[1];
-            }
-            if (nameMatch && lastSteamId) {
-                steamIdToName[lastSteamId] = nameMatch[1];
-                users.add(steamIdToName[lastSteamId]);
-            }
-            if (leftMatch) {
-                users.delete(steamIdToName[leftMatch[1]] || leftMatch[1]);
-            }
-        }
-    }
-
-    return Array.from(users);
-}
 
 module.exports = {
     data: {
@@ -113,10 +66,58 @@ module.exports = {
             }
 
             await interaction.editReply(`${messenger.answerMessages(debianEmoji, message)}\r\n`);
-            logger.logToFile(`一覧 : ${message}`);
+            await logger.logToFile(`参加 : ${message}`);
         } catch (error) {
             await interaction.editReply(`${messenger.errorMessages(`ユーザの取得でエラーが発生しました`, error.message)}`);
-            logger.errorToFile(`ユーザの取得でエラーが発生`, error);
+            await logger.errorToFile(`ユーザの取得でエラーが発生`, error);
         }
     }
+};
+
+async function getActiveUsers(logFilePath, target) {
+    const fileHandle = await FS.open(logFilePath, 'r');
+    const fileStream = fileHandle.createReadStream();
+
+    const rl = READLINE.createInterface({
+        input: fileStream,
+        crlfDelay: Infinity
+    });
+
+    let users = new Set();
+    let steamIdToName = {};
+    let lastSteamId = '';
+
+    for await (const line of rl) {
+        if (target === 'Terraria') {
+            const joinMatch = line.match(/(.*) has joined\./);
+            const leftMatch = line.match(/(.*) has left\./);
+
+            if (joinMatch) {
+                // 接続したユーザを追加
+                users.add(joinMatch[1]);
+            } else if (leftMatch) {
+                // 切断したユーザを削除
+                users.delete(leftMatch[1]);
+            }
+        }
+        else if (target === 'Valheim') {
+            const joinMatch = line.match(/Got connection SteamID (\d+)/);
+            const leftMatch = line.match(/Closing socket (\d+)/);
+            const nameMatch = line.match(/Got character ZDOID from (\w+) : \d+:\d+/);
+
+            if (joinMatch) {
+                lastSteamId = joinMatch[1];
+            }
+            if (nameMatch && lastSteamId) {
+                steamIdToName[lastSteamId] = nameMatch[1];
+                users.add(steamIdToName[lastSteamId]);
+            }
+            if (leftMatch) {
+                users.delete(steamIdToName[leftMatch[1]] || leftMatch[1]);
+            }
+        }
+    }
+
+    await fileHandle.close();
+    return Array.from(users);
 };

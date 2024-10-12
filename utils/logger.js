@@ -1,21 +1,21 @@
-const FS = require('fs');
+const FS = require('fs').promises;
 const PATH = require('path');
 
 module.exports = {
     // ログをファイルに書き込む
-    logToFile: function (message) {
+    logToFile: async function (message) {
         const now = new Date();
         const timestamp = now.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
         const logFilePath = getLogFilePath(`watchdog-bot.log`);
 
         const logMessage = `${timestamp} - ${message}`;
 
-        FS.appendFileSync(logFilePath, logMessage + '\n');
+        await FS.appendFile(logFilePath, logMessage + '\n');
         console.log(logMessage);
     },
 
     // エラーログをファイルに書き込む
-    errorToFile: function (message, error) {
+    errorToFile: async function (message, error) {
         const now = new Date();
         const timestamp = now.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
         const logFilePath = getLogFilePath(`watchdog-bot.log`);
@@ -24,12 +24,12 @@ module.exports = {
         const logMessage = `${timestamp} - ${message} : ${error.stack}`;
         const errorMessage = `${timestamp} - ${message} : ${error.message}`;
 
-        FS.appendFileSync(logFilePath, logMessage + '\n');
+        await FS.appendFile(logFilePath, logMessage + '\n');
         console.error(errorMessage);
     },
 
     // コマンドを起動したユーザ情報をファイルにのみ書き込む
-    commandToFile: function (interaction) {
+    commandToFile: async function (interaction) {
         const logFilePath = getLogFilePath(`watchdog-bot.log`);
 
         const userInfo = [
@@ -41,28 +41,34 @@ module.exports = {
             `--------------------------------`
         ].join('\n');
 
-        FS.appendFileSync(logFilePath, userInfo + '\n');
+        await FS.appendFile(logFilePath, userInfo + '\n');
     },
 
     // ログファイルのバックアップと新規作成
-    logRotate: function () {
+    logRotate: async function () {
         const logFilePath = getLogFilePath(`watchdog-bot.log`);
         const backupLogFilePath = getLogFilePath(`watchdog-bot-backup.log`);
 
         // バックアップファイルが存在する場合は削除
-        if (FS.existsSync(backupLogFilePath)) {
-            FS.unlinkSync(backupLogFilePath);
+        try {
+            await FS.unlink(backupLogFilePath);
+        } catch (error) {
+            // ファイルが存在しない場合は無視
+            if (error.code !== 'ENOENT') throw error;
         }
         // ログファイルをバックアップ
-        if (FS.existsSync(logFilePath)) {
-            FS.renameSync(logFilePath, backupLogFilePath);
+        try {
+            await FS.rename(logFilePath, backupLogFilePath);
+        } catch (error) {
+            // ファイルが存在しない場合は無視
+            if (error.code !== 'ENOENT') throw error;
         }
 
         // 新しいログファイルを作成
-        FS.writeFileSync(logFilePath, '');
+        await FS.writeFile(logFilePath, '');
     }
 };
 
 function getLogFilePath(fileName) {
     return PATH.resolve(__dirname, `../${fileName}`);
-}
+};
