@@ -39,25 +39,25 @@ module.exports = {
 
             awk.on('close', async (code) => {
                 if (code !== 0) {
-                    await logger.errorToFile(`ps コマンドの実行でエラーが発生`, new Error(`awk exited with code ${code}`));
+                    await logger.errorToFile('ps コマンドの実行でエラーが発生', new Error(`awk exited with code ${code}`));
                     return;
                 }
 
                 const servers = stdout.split('\n').filter(server => server.trim() !== '');
                 let message = '現在稼働しているゲームサーバはありません';
                 if (servers.length !== 0) {
-                    const configContent = await FS.readFile(`./server_list.ini`, "utf-8");
+                    const configContent = await FS.readFile('./server_list.ini', 'utf-8');
                     const config = INI.parse(configContent);
                     const serverList = servers.map(server => config.Servers[server].replace('GlobalIP', ip)).filter(Boolean);
 
                     message = `現在稼働しているゲームサーバは以下の通りです\n${serverList.join('\n')}`;
                 }
-                await interaction.editReply(`${messenger.answerMessages(debianEmoji, message)}\r\n`);
+                await interaction.editReply(messenger.answerMessages(debianEmoji, message));
                 await logger.logToFile(`一覧 : ${message}`);
             });
         } catch (error) {
-            await interaction.editReply(`${messenger.errorMessages(`ゲームサーバの取得でエラーが発生しました`, error.message)}`);
-            await logger.errorToFile(`ゲームサーバの取得でエラーが発生`, error);
+            await interaction.editReply(messenger.errorMessages('ゲームサーバの取得でエラーが発生しました', error.message));
+            await logger.errorToFile('ゲームサーバの取得でエラーが発生', error);
         }
     }
 };
