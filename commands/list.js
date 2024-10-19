@@ -40,6 +40,7 @@ module.exports = {
             awk.on('close', async (code) => {
                 if (code !== 0) {
                     await logger.errorToFile('ps コマンドの実行でエラーが発生', new Error(`awk exited with code ${code}`));
+                    await interaction.editReply(messenger.errorMessages('ゲームサーバの取得でエラーが発生しました', `awk exited with code ${code}`));
                     return;
                 }
 
@@ -52,12 +53,12 @@ module.exports = {
 
                     message = `現在稼働しているゲームサーバは以下の通りです\n${serverList.join('\n')}`;
                 }
-                await interaction.editReply(messenger.answerMessages(debianEmoji, message));
                 await logger.logToFile(`一覧 : ${message}`);
+                await interaction.editReply(messenger.answerMessages(debianEmoji, message));
             });
         } catch (error) {
-            await interaction.editReply(messenger.errorMessages('ゲームサーバの取得でエラーが発生しました', error.message));
             await logger.errorToFile('ゲームサーバの取得でエラーが発生', error);
+            await interaction.editReply(messenger.errorMessages('ゲームサーバの取得でエラーが発生しました', error.message));
         }
     }
 };

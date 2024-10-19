@@ -64,11 +64,11 @@ module.exports = {
                 message = `現在 ${target} に接続しているユーザは以下の通りです\n${activeUsers.join(', ')}`;
             }
 
-            await interaction.editReply(messenger.answerMessages(debianEmoji, message));
             await logger.logToFile(`参加 : ${message}`);
+            await interaction.editReply(messenger.answerMessages(debianEmoji, message));
         } catch (error) {
-            await interaction.editReply(messenger.errorMessages('ユーザの取得でエラーが発生しました', error.message));
             await logger.errorToFile('ユーザの取得でエラーが発生', error);
+            await interaction.editReply(messenger.errorMessages('ユーザの取得でエラーが発生しました', error.message));
         }
     }
 };
