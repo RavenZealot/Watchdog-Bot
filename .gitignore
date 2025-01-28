@@ -1,3 +1,4 @@
+node_modules/
 /.env
 /watchdog-bot.log
 /watchdog-bot-backup.log
