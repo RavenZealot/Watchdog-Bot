@@ -1,6 +1,7 @@
 const { spawn: SPAWN } = require('child_process');
 const INI = require('ini');
 const FS = require('fs').promises;
+const { MessageFlags } = require('discord.js');
 
 const logger = require('../utils/logger');
 const messenger = require('../utils/messenger');
@@ -16,7 +17,7 @@ module.exports = {
         const debianEmoji = process.env.SERVER_EMOJI;
         try {
             // interaction の返信を遅延させる
-            await interaction.deferReply({ ephemeral: true });
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
             // グローバルIPを取得
             const publicIp = await import('public-ip');

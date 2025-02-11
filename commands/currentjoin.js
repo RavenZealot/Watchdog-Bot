@@ -1,4 +1,5 @@
 const FS = require('fs').promises;
+const { MessageFlags } = require('discord.js');
 
 const logger = require('../utils/logger');
 const messenger = require('../utils/messenger');
@@ -15,14 +16,8 @@ module.exports = {
                 type: 3,
                 required: true,
                 choices: [
-                    {
-                        name: 'Terraria',
-                        value: 'Terraria'
-                    },
-                    {
-                        name: 'Valheim',
-                        value: 'Valheim'
-                    }
+                    { name: 'Terraria', value: 'Terraria' },
+                    { name: 'Valheim', value: 'Valheim' }
                 ]
             },
             {
@@ -43,7 +38,7 @@ module.exports = {
             const isPublic = interaction.options.getBoolean('公開') ?? false;
 
             // interaction の返信を遅延させる
-            await interaction.deferReply({ ephemeral: !isPublic });
+            await interaction.deferReply({ flags: !isPublic ? MessageFlags.Ephemeral : 0 });
 
             let logFilePath;
             switch (target) {
