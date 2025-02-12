@@ -38,7 +38,7 @@ module.exports = {
             const isPublic = interaction.options.getBoolean('公開') ?? false;
 
             // interaction の返信を遅延させる
-            await interaction.deferReply({ flags: !isPublic ? MessageFlags.Ephemeral : 0 });
+            await interaction.deferReply({ flags: isPublic ? 0 : MessageFlags.Ephemeral });
 
             let logFilePath;
             switch (target) {
